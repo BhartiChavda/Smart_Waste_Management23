@@ -79,14 +79,18 @@
                 </a>
                 <a href="{% url 'staff_tasks' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors {% if request.resolver_match.url_name == 'staff_tasks' %}bg-primary-500 text-white shadow-md{% else %}text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white{% endif %}">
                     <i class="fas fa-tasks w-5"></i> Assigned Tasks
-                    <span class="ml-auto bg-orange-100 text-orange-600 py-0.5 px-2.5 rounded-full text-xs font-bold">2</span>
+                    {% if staff_assigned_count > 0 %}
+                    <span class="ml-auto bg-orange-100 text-orange-600 py-0.5 px-2.5 rounded-full text-xs font-bold">{{ staff_assigned_count }}</span>
+                    {% endif %}
                 </a>
                 <a href="{% url 'staff_history' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors {% if request.resolver_match.url_name == 'staff_history' %}bg-primary-500 text-white shadow-md{% else %}text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white{% endif %}">
                     <i class="fas fa-history w-5"></i> Work History
                 </a>
                 <a href="{% url 'staff_notifications' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors {% if request.resolver_match.url_name == 'staff_notifications' %}bg-primary-500 text-white shadow-md{% else %}text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white{% endif %}">
                     <i class="fas fa-bell w-5"></i> Notifications
-                    <span class="ml-auto bg-primary-100 text-primary-600 py-0.5 px-2 rounded-full text-xs font-bold">New</span>
+                    {% if staff_unread_notifications_count > 0 %}
+                    <span class="ml-auto bg-primary-100 text-primary-600 py-0.5 px-2 rounded-full text-xs font-bold">{{ staff_unread_notifications_count }}</span>
+                    {% endif %}
                 </a>
                 
                 {% if request.user.is_superuser %}
