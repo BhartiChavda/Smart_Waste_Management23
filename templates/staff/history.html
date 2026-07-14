@@ -1,0 +1,79 @@
+{% extends 'layouts/base_staff.html' %}
+
+{% block title %}Work History | EcoNova Staff{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Work History</h1>
+    <p class="text-gray-500 mt-1">Review your completed and resolved tasks.</p>
+</div>
+
+<div class="glass rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
+                    <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Priority</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date Filed</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                {% for complaint in complaints %}
+                <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
+                        #{{ complaint.id }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                            {{ complaint.category }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if complaint.priority == 'Critical' %}
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400"></span> Critical
+                            </span>
+                        {% elif complaint.priority == 'High' %}
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
+                                <span class="w-1.5 h-1.5 rounded-full bg-orange-600 dark:bg-orange-400"></span> High
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400">
+                                <span class="w-1.5 h-1.5 rounded-full bg-gray-500"></span> {{ complaint.priority }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {{ complaint.created_at|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        {% if complaint.status == 'Resolved' %}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                <i class="fas fa-check-circle"></i> Resolved
+                            </span>
+                        {% elif complaint.status == 'Rejected' %}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                                <i class="fas fa-times-circle"></i> Rejected
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                            <i class="fas fa-history text-2xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-sm font-medium text-gray-900 dark:text-white">No history</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">You haven't completed any tasks yet.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

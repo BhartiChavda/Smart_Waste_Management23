@@ -1,0 +1,146 @@
+<!-- templates/layouts/base_public.html -->
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EcoNova AI - Enterprise Smart Waste Management System">
+    <title>{% block title %}EcoNova AI | Smart Waste Management{% endblock %}</title>
+
+    <!-- Tailwind CSS (via CDN for Phase 1 - update to local build for production) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom Global CSS (Glassmorphism & Animations) -->
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .dark .glass {
+            background: rgba(17, 24, 39, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Global Loader */
+        .page-loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(to right, #22c55e, #10b981);
+            z-index: 9999;
+            animation: load 1s infinite;
+            display: none;
+        }
+        @keyframes load {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Global Page Loader -->
+    <div id="global-loader" class="page-loader"></div>
+
+    <!-- Splash Screen (Only shown on initial visit if configured) -->
+    {% include 'components/splash.html' %}
+
+    <!-- Navbar -->
+    {% include 'components/navbar.html' %}
+
+    <!-- Main Content -->
+    <main class="min-h-screen pt-20">
+        {% block content %}
+        {% endblock content %}
+    </main>
+
+    <!-- Footer -->
+    {% include 'components/footer.html' %}
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTop" class="fixed bottom-5 left-5 z-50 bg-primary-600 text-white p-3 rounded-full shadow-lg opacity-0 translate-y-10 transition-all duration-300 hover:bg-primary-700 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900 cursor-pointer">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+        </svg>
+    </button>
+
+    <!-- Global Scripts -->
+    <script>
+        // Dark Mode Logic
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+
+        // Global Page Loader Logic for link clicks
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (link && link.href && !link.href.startsWith('#') && link.target !== '_blank') {
+                document.getElementById('global-loader').style.display = 'block';
+            }
+        });
+        
+        window.addEventListener('pageshow', () => {
+            document.getElementById('global-loader').style.display = 'none';
+        });
+
+        // Scroll to Top Logic
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                scrollToTopBtn.classList.remove('opacity-0', 'translate-y-10');
+                scrollToTopBtn.classList.add('opacity-100', 'translate-y-0');
+            } else {
+                scrollToTopBtn.classList.add('opacity-0', 'translate-y-10');
+                scrollToTopBtn.classList.remove('opacity-100', 'translate-y-0');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

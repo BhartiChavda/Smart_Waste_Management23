@@ -1,0 +1,234 @@
+{% extends 'layouts/base_staff.html' %}
+
+{% block title %}Dashboard | EcoNova Staff{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Staff Overview</h1>
+        <p class="text-gray-500 mt-1">Welcome back! Here is your performance and current task overview.</p>
+    </div>
+    {% if is_preview %}
+    <div class="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg font-bold text-sm shadow-sm flex items-center gap-2 border border-yellow-200">
+        <i class="fas fa-eye"></i> Admin Preview Mode
+        <a href="{% url 'admin_dashboard' %}" class="ml-2 underline hover:text-yellow-900">Exit</a>
+    </div>
+    {% else %}
+    <div class="flex items-center gap-3">
+        <a href="#" class="bg-primary-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-500 transition-colors shadow-sm flex items-center gap-2">
+            <i class="fas fa-tasks"></i> View Tasks
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+    
+    <!-- Total Assigned -->
+    <div class="glass p-5 rounded-2xl border-l-4 border-blue-500 shadow-sm hover:-translate-y-1 transition-transform group">
+        <div class="flex justify-between items-start mb-2">
+            <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+        </div>
+        <h3 class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Total Assigned</h3>
+        <p class="text-3xl font-bold text-gray-900 dark:text-white">12</p>
+    </div>
+
+    <!-- Pending Tasks -->
+    <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500 shadow-sm hover:-translate-y-1 transition-transform group">
+        <div class="flex justify-between items-start mb-2">
+            <div class="w-10 h-10 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+        <h3 class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Pending</h3>
+        <p class="text-3xl font-bold text-gray-900 dark:text-white">3</p>
+    </div>
+
+    <!-- In Progress -->
+    <div class="glass p-5 rounded-2xl border-l-4 border-purple-500 shadow-sm hover:-translate-y-1 transition-transform group">
+        <div class="flex justify-between items-start mb-2">
+            <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="fas fa-spinner"></i>
+            </div>
+        </div>
+        <h3 class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">In Progress</h3>
+        <p class="text-3xl font-bold text-gray-900 dark:text-white">1</p>
+    </div>
+
+    <!-- High Priority -->
+    <div class="glass p-5 rounded-2xl border-l-4 border-red-500 shadow-sm hover:-translate-y-1 transition-transform group">
+        <div class="flex justify-between items-start mb-2">
+            <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+        </div>
+        <h3 class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">High Priority</h3>
+        <p class="text-3xl font-bold text-gray-900 dark:text-white">2</p>
+    </div>
+
+    <!-- Completed Today -->
+    <div class="glass p-5 rounded-2xl border-l-4 border-primary-500 shadow-sm hover:-translate-y-1 transition-transform group">
+        <div class="flex justify-between items-start mb-2">
+            <div class="w-10 h-10 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+        </div>
+        <h3 class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Completed Today</h3>
+        <p class="text-3xl font-bold text-gray-900 dark:text-white">4</p>
+    </div>
+
+    <!-- Total Completed -->
+    <div class="glass p-5 rounded-2xl border-l-4 border-teal-500 shadow-sm hover:-translate-y-1 transition-transform group">
+        <div class="flex justify-between items-start mb-2">
+            <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="fas fa-check-double"></i>
+            </div>
+        </div>
+        <h3 class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider mb-1">Total Completed</h3>
+        <p class="text-3xl font-bold text-gray-900 dark:text-white">86</p>
+    </div>
+
+    <!-- Performance Score -->
+    <div class="glass p-5 rounded-2xl border-l-4 border-indigo-500 shadow-sm hover:-translate-y-1 transition-transform group lg:col-span-2 flex justify-between items-center">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-star"></i>
+                </div>
+                <h3 class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Performance Score</h3>
+            </div>
+            <div class="flex items-end gap-2">
+                <p class="text-4xl font-bold text-gray-900 dark:text-white">98</p>
+                <span class="text-gray-500 mb-1 text-sm">/ 100</span>
+            </div>
+        </div>
+        <div class="text-right hidden sm:block">
+            <div class="inline-flex items-center gap-1 text-green-500 bg-green-50 px-2 py-1 rounded-md text-sm font-medium mb-1">
+                <i class="fas fa-arrow-up"></i> 2.4%
+            </div>
+            <p class="text-xs text-gray-400">vs last month</p>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Weekly Progress Chart -->
+    <div class="glass p-6 rounded-2xl shadow-sm lg:col-span-2 flex flex-col border border-gray-200 dark:border-gray-800">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <i class="fas fa-chart-bar text-primary-500"></i> Weekly Work Completion
+            </h3>
+            <select class="text-sm bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 py-1 pl-2 pr-6">
+                <option>This Week</option>
+                <option>Last Week</option>
+            </select>
+        </div>
+        <div class="flex-1 w-full relative" style="min-height: 250px;">
+            <canvas id="weeklyChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Activity Timeline -->
+    <div class="glass p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+            <i class="fas fa-history text-blue-500"></i> Recent Activity
+        </h3>
+        
+        <div class="relative flex-1">
+            <!-- Timeline Line -->
+            <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
+            
+            <ul class="space-y-6 relative z-10">
+                <li class="flex gap-4">
+                    <div class="w-8 h-8 rounded-full bg-green-100 text-green-500 border-4 border-white dark:border-gray-900 flex items-center justify-center shrink-0">
+                        <i class="fas fa-check text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Resolved Complaint #102</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Today at 10:30 AM</p>
+                    </div>
+                </li>
+                <li class="flex gap-4">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-500 border-4 border-white dark:border-gray-900 flex items-center justify-center shrink-0">
+                        <i class="fas fa-truck text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Started Work #104</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Today at 09:15 AM</p>
+                    </div>
+                </li>
+                <li class="flex gap-4">
+                    <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-500 border-4 border-white dark:border-gray-900 flex items-center justify-center shrink-0">
+                        <i class="fas fa-clipboard-check text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Accepted Task #105</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Yesterday</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <a href="#" class="mt-4 text-center text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors">View All History <i class="fas fa-arrow-right ml-1"></i></a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('weeklyChart').getContext('2d');
+    const isDark = document.documentElement.classList.contains('dark');
+    const textColor = isDark ? '#9ca3af' : '#6b7280';
+    const gridColor = isDark ? '#374151' : '#e5e7eb';
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [
+                {
+                    label: 'Resolved',
+                    data: [3, 5, 2, 8, 4, 0, 0],
+                    backgroundColor: '#10b981',
+                    borderRadius: 4,
+                },
+                {
+                    label: 'New Assigned',
+                    data: [4, 2, 6, 3, 5, 0, 0],
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 4,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { color: textColor, font: { family: "'Inter', sans-serif" } }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: { color: textColor, stepSize: 2 }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: textColor }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

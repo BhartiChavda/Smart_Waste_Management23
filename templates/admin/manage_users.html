@@ -1,0 +1,108 @@
+{% extends 'layouts/base_admin.html' %}
+
+{% block title %}Manage Users - EcoNova AI{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+        <a href="{% url 'admin_dashboard' %}" class="w-10 h-10 rounded-full bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 transition-all shadow-sm">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Manage Citizens</h1>
+            <p class="text-gray-500 mt-1">View and manage citizen accounts.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Citizens List Table -->
+<div class="glass rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
+                    <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Citizen ID</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Username</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date Joined</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                {% for citizen in citizens %}
+                <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
+                        #{{ citizen.id }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center font-bold text-sm">
+                                {{ citizen.username|make_list|first|upper }}
+                            </div>
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ citizen.username }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {{ citizen.email|default:"No email" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {{ citizen.date_joined|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        {% if citizen.is_active %}
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 animate-[fade-in_0.3s_ease-out]">
+                            <i class="fas fa-circle text-[8px] mr-1.5 animate-pulse text-emerald-500"></i> Active
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50 animate-[fade-in_0.3s_ease-out]">
+                            <i class="fas fa-ban text-[10px] mr-1.5 text-rose-500"></i> Blocked
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <!-- Toggle Block Form -->
+                            <form method="POST" action="{% url 'manage_users' %}" class="inline-block">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_id" value="{{ citizen.id }}">
+                                <input type="hidden" name="action" value="toggle_block">
+                                {% if citizen.is_active %}
+                                <button type="submit" class="text-amber-600 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300 font-bold text-xs px-3 py-1.5 border border-amber-200 dark:border-amber-800/50 hover:bg-amber-50 dark:hover:bg-amber-950/20 rounded-xl transition-all flex items-center gap-1.5" title="Block Citizen">
+                                    <i class="fas fa-user-slash"></i> Block
+                                </button>
+                                {% else %}
+                                <button type="submit" class="text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 font-bold text-xs px-3 py-1.5 border border-emerald-200 dark:border-emerald-800/50 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 rounded-xl transition-all flex items-center gap-1.5" title="Unblock Citizen">
+                                    <i class="fas fa-user-check"></i> Unblock
+                                </button>
+                                {% endif %}
+                            </form>
+                            
+                            <!-- Delete Form -->
+                            <form method="POST" action="{% url 'manage_users' %}" class="inline-block" onsubmit="return confirm('Are you sure you want to delete citizen &ldquo;{{ citizen.username }}&rdquo;? All of their filed complaints will be permanently deleted as well.');">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_id" value="{{ citizen.id }}">
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit" class="text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-300 font-bold text-xs px-3 py-1.5 border border-rose-200 dark:border-rose-800/50 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl transition-all flex items-center gap-1.5" title="Delete Citizen">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                            <i class="fas fa-users-slash text-2xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-sm font-medium text-gray-900 dark:text-white">No citizens found</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">When citizens register, they will appear here.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

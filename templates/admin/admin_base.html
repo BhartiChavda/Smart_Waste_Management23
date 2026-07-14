@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel - EcoNova AI{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --admin-bg: #f0f4f8;
+            --sidebar-bg: #ffffff;
+            --text-main: #2b3035;
+            --text-muted: #6c757d;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--admin-bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- SPLASH SCREEN --- */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #ffffff;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+        }
+        .loader-icon {
+            font-size: 4rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 1.5s infinite;
+        }
+        .loader-text {
+            margin-top: 15px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #11998e;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(17, 153, 142, 0.2);
+            border-top-color: #11998e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-top: 20px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            box-shadow: 4px 0 20px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link i {
+            width: 25px;
+            font-size: 1.1rem;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(17, 153, 142, 0.1);
+            color: #11998e;
+            transform: translateX(5px);
+        }
+
+        .visit-link {
+            background: rgba(255, 193, 7, 0.15);
+            color: #d39e00;
+        }
+        .visit-link:hover {
+            background: rgba(255, 193, 7, 0.25);
+            color: #b38600;
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background-image: radial-gradient(circle at top right, rgba(17,153,142,0.05), transparent 400px);
+        }
+
+        .header-title {
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        /* --- CARDS --- */
+        .glass-card {
+            background: #ffffff;
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(17, 153, 142, 0.1);
+        }
+
+        .stat-card {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .stat-icon {
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            font-size: 8rem;
+            opacity: 0.05;
+        }
+
+        #heatmap {
+            height: 350px;
+            width: 100%;
+            border-radius: 15px;
+            z-index: 1;
+        }
+
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- Splash Screen -->
+<div id="splash-screen">
+    <i class="fas fa-leaf loader-icon"></i>
+    <div class="loader-text">ECOADMIN</div>
+    <div class="spinner"></div>
+</div>
+
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <i class="fas fa-shield-alt me-2 text-success"></i> EcoAdmin
+    </div>
+    
+    <a href="{% url 'admin_dashboard' %}" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a href="{% url 'manage_complaints' %}" class="nav-link"><i class="fas fa-tasks"></i> Complaints</a>
+    
+    <div class="mt-4 border-top pt-4" style="border-color: #f0f0f0 !important;">
+        <a href="{% url 'dashboard' %}" class="nav-link visit-link fw-bold"><i class="fas fa-globe"></i> Visit Website</a>
+    </div>
+
+    <div class="mt-auto">
+        <a href="{% url 'logout' %}" class="btn btn-danger w-100 fw-bold rounded-pill shadow-sm"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+    </div>
+</div>
+
+<div class="main-content">
+    {% if messages %}
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+            {% for message in messages %}
+            <div class="toast align-items-center text-white bg-{{ message.tags }} border-0 show mb-2 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="d-flex">
+                <div class="toast-body fw-bold">
+                  <i class="fas fa-info-circle me-2"></i> {{ message }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+              </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Splash Screen Logic
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
+            splash.style.visibility = 'hidden';
+        }, 800);
+    });
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,202 @@
+{% extends 'layouts/base_admin.html' %}
+
+{% block title %}Admin Dashboard - EcoNova AI{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Overview Analytics</h1>
+        <p class="text-gray-500 mt-1">Welcome to the EcoNova AI command center.</p>
+    </div>
+    <div class="flex items-center gap-3">
+        <a href="{% url 'reports' %}" class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-gray-50 shadow-sm transition-colors flex items-center gap-2">
+            <i class="fas fa-download"></i> Export Report
+        </a>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Complaints -->
+    <div class="glass p-6 rounded-2xl border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+        <div class="absolute top-0 right-0 -mt-4 -mr-4 text-blue-500 opacity-10">
+            <i class="fas fa-inbox fa-5x"></i>
+        </div>
+        <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <h3 class="text-gray-500 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider">Total Complaints</h3>
+        </div>
+        <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ total_complaints|default:0 }}</p>
+    </div>
+
+    <!-- Pending Review -->
+    <div class="glass p-6 rounded-2xl border-l-4 border-yellow-500 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+        <div class="absolute top-0 right-0 -mt-4 -mr-4 text-yellow-500 opacity-10">
+            <i class="fas fa-clock fa-5x"></i>
+        </div>
+        <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h3 class="text-gray-500 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider">Pending Review</h3>
+        </div>
+        <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ pending_complaints|default:0 }}</p>
+    </div>
+
+    <!-- Resolved -->
+    <div class="glass p-6 rounded-2xl border-l-4 border-green-500 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+        <div class="absolute top-0 right-0 -mt-4 -mr-4 text-green-500 opacity-10">
+            <i class="fas fa-check-circle fa-5x"></i>
+        </div>
+        <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-gray-500 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider">Resolved</h3>
+        </div>
+        <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ resolved_complaints|default:0 }}</p>
+    </div>
+
+    <!-- Critical Priority -->
+    <div class="glass p-6 rounded-2xl border-l-4 border-red-500 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+        <div class="absolute top-0 right-0 -mt-4 -mr-4 text-red-500 opacity-10">
+            <i class="fas fa-exclamation-triangle fa-5x"></i>
+        </div>
+        <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="text-gray-500 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider">Critical Priority</h3>
+        </div>
+        <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ critical_priority|default:0 }}</p>
+    </div>
+</div>
+
+<!-- Quick Management Actions -->
+<div class="mb-8">
+    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Management</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <a href="{% url 'manage_users' %}" class="glass p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700">
+            <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl"><i class="fas fa-users"></i></div>
+            <span class="text-sm font-medium">Manage Users</span>
+        </a>
+        <a href="{% url 'manage_staff' %}" class="glass p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700">
+            <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xl"><i class="fas fa-hard-hat"></i></div>
+            <span class="text-sm font-medium">Manage Staff</span>
+        </a>
+        <a href="{% url 'manage_complaints' %}" class="glass p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700">
+            <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xl"><i class="fas fa-inbox"></i></div>
+            <span class="text-sm font-medium">Complaints</span>
+        </a>
+        <a href="{% url 'ai_engine' %}" class="glass p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700">
+            <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xl"><i class="fas fa-robot"></i></div>
+            <span class="text-sm font-medium">AI Engine</span>
+        </a>
+        <a href="{% url 'reports' %}" class="glass p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700">
+            <div class="w-12 h-12 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center text-xl"><i class="fas fa-chart-line"></i></div>
+            <span class="text-sm font-medium">Reports</span>
+        </a>
+        <a href="{% url 'admin_settings' %}" class="glass p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700">
+            <div class="w-12 h-12 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xl"><i class="fas fa-cog"></i></div>
+            <span class="text-sm font-medium">Settings</span>
+        </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Chart -->
+    <div class="glass p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 lg:col-span-1 flex flex-col">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <i class="fas fa-chart-pie text-primary-500"></i> Garbage Categories
+        </h3>
+        <div class="flex-1 relative w-full flex justify-center items-center" style="min-height: 250px;">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Heatmap -->
+    <div class="glass p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 lg:col-span-2 flex flex-col">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <i class="fas fa-map-marker-alt text-red-500"></i> Complaint Heatmap
+        </h3>
+        <div id="heatmap" class="flex-1 rounded-xl w-full border border-gray-200 dark:border-gray-700" style="min-height: 300px;"></div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Heatmap Plugin -->
+<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Chart.js Configuration
+        fetch("{% url 'chart_data' %}")
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('categoryChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            data: data.data,
+                            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1'],
+                            borderWidth: 0,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '75%',
+                        plugins: {
+                            legend: { 
+                                position: 'bottom',
+                                labels: { 
+                                    padding: 20, 
+                                    font: { family: "'Inter', sans-serif", size: 12 },
+                                    color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569'
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(err => console.log('Chart Data error or no data yet.'));
+
+        // Leaflet Heatmap Configuration
+        var map = L.map('heatmap').setView([20.5937, 78.9629], 4);
+        
+        // Use a nice modern map tile (CartoDB Positron)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://carto.com/">CartoDB</a>'
+        }).addTo(map);
+
+        fetch("{% url 'heatmap_data' %}")
+            .then(response => response.json())
+            .then(data => {
+                if(data && data.length > 0) {
+                    const heatData = data.map(point => [point.lat, point.lng, point.intensity]);
+                    L.heatLayer(heatData, {
+                        radius: 25, 
+                        blur: 15, 
+                        maxZoom: 10,
+                        gradient: {0.4: 'blue', 0.6: 'cyan', 0.7: 'lime', 0.8: 'yellow', 1.0: 'red'}
+                    }).addTo(map);
+                    
+                    const lats = data.map(p => p.lat);
+                    const lngs = data.map(p => p.lng);
+                    map.fitBounds([
+                        [Math.min(...lats), Math.min(...lngs)],
+                        [Math.max(...lats), Math.max(...lngs)]
+                    ]);
+                }
+            })
+            .catch(err => console.log('Heatmap Data error or no data yet.'));
+    });
+</script>
+{% endblock %}

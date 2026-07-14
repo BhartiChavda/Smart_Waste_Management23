@@ -1,0 +1,95 @@
+{% extends 'layouts/base_public.html' %}
+
+{% block title %}Register - EcoNova AI{% endblock %}
+
+{% block content %}
+<div class="relative min-h-[calc(100vh-80px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+
+    <!-- Background Gradient -->
+    <div class="absolute inset-x-0 top-[-10rem] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[-20rem]">
+        <div
+            class="relative left-1/2 -z-10 aspect-[1155/678] w-[36.125rem] max-w-none -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-primary-200 to-primary-600 opacity-30 sm:left-[calc(50%-40rem)] sm:w-[72.1875rem]">
+        </div>
+    </div>
+
+    <div class="w-full max-w-md space-y-8 glass p-8 sm:p-10 rounded-3xl shadow-2xl animate-[fade-in-up_0.6s_ease-out]">
+        <div>
+            <div
+                class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
+                <svg class="h-8 w-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                </svg>
+            </div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+                Join EcoNova AI
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                Create an account to report and track waste.
+            </p>
+        </div>
+
+        <form class="mt-8 space-y-6" method="POST">
+            {% csrf_token %}
+
+            <div class="space-y-4">
+                {% for field in form %}
+                <div>
+                    <label for="{{ field.id_for_label }}"
+                        class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-300">
+                        {{ field.label }}
+                    </label>
+                    <div class="mt-2 relative">
+                        <!-- Render the django field manually or add classes -->
+                        <input type="{{ field.field.widget.input_type|default:'text' }}" name="{{ field.name }}"
+                            id="{{ field.id_for_label }}" {% if field.field.required %}required{% endif %}
+                            class="block w-full rounded-xl border-0 py-2.5 px-3 text-gray-900 dark:text-white dark:bg-gray-800 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 bg-white/50 backdrop-blur-sm transition-all duration-300 {% if field.field.widget.input_type == 'password' %}pr-10{% endif %}"
+                            placeholder="{{ field.label }}">
+
+                        {% if field.field.widget.input_type == 'password' %}
+                        <button type="button"
+                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                            onclick="var input = document.getElementById('{{ field.id_for_label }}'); var icon = this.querySelector('i'); if (input.type === 'password') { input.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); } else { input.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                    {% if field.errors %}
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        {{ field.errors|striptags }}
+                    </p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div>
+                <button type="submit"
+                    class="group relative flex w-full justify-center rounded-xl bg-primary-600 px-3 py-3 text-sm font-semibold text-white hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 shadow-lg shadow-primary-500/30 transition-all duration-300 hover:-translate-y-1">
+                    Create Account
+                    <span class="absolute right-4 flex items-center">
+                        <svg class="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                    </span>
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                Already have an account?
+                <a href="{% url 'login' %}"
+                    class="font-semibold text-primary-600 hover:text-primary-500 transition-colors">Sign In</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

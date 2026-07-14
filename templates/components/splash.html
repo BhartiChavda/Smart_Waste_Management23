@@ -1,0 +1,53 @@
+<!-- templates/components/splash.html -->
+<div id="splash-screen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-emerald-900 transition-opacity duration-1000">
+    <div class="relative flex flex-col items-center">
+        <!-- Animated AI Icon / Logo -->
+        <div class="relative w-24 h-24 mb-6">
+            <div class="absolute inset-0 bg-white rounded-full opacity-20 animate-ping"></div>
+            <div class="absolute inset-0 flex items-center justify-center bg-white rounded-full shadow-2xl animate-pulse">
+                <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- EcoNova AI Title -->
+        <h1 class="text-4xl font-extrabold text-white tracking-wider mb-2 drop-shadow-lg">
+            EcoNova <span class="text-green-200">AI</span>
+        </h1>
+        <p class="text-green-100 font-medium tracking-widest uppercase text-sm mb-8 animate-pulse">Smart Waste Management</p>
+        
+        <!-- Loading Progress -->
+        <div class="w-64 h-1.5 bg-green-800 rounded-full overflow-hidden">
+            <div id="splash-progress" class="h-full bg-white rounded-full w-0 transition-all duration-1000 ease-out"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const splash = document.getElementById('splash-screen');
+        const progress = document.getElementById('splash-progress');
+        
+        // Ensure minimum 2 seconds loading duration as requested
+        const minDuration = 2000;
+        const startTime = Date.now();
+        
+        // Animate progress bar
+        setTimeout(() => { progress.style.width = '30%'; }, 200);
+        setTimeout(() => { progress.style.width = '70%'; }, 1000);
+        setTimeout(() => { progress.style.width = '100%'; }, 1800);
+        
+        window.addEventListener('load', () => {
+            const timeElapsed = Date.now() - startTime;
+            const remainingTime = Math.max(0, minDuration - timeElapsed);
+            
+            setTimeout(() => {
+                splash.classList.add('opacity-0');
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                }, 1000); // Wait for fade out transition (duration-1000)
+            }, remainingTime);
+        });
+    });
+</script>

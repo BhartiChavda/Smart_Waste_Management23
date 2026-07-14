@@ -1,0 +1,68 @@
+<!-- templates/components/navbar.html -->
+<header x-data="{ mobileMenuOpen: false }" class="fixed top-0 w-full z-40 glass border-b transition-all duration-300">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between p-4 lg:px-8" aria-label="Global">
+        <div class="flex lg:flex-1">
+            <a href="/" class="-m-1.5 p-1.5 flex items-center gap-2 group">
+                <svg class="w-8 h-8 text-primary-600 group-hover:animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                <span class="font-extrabold text-xl tracking-tight dark:text-white">EcoNova<span class="text-primary-600">AI</span></span>
+            </a>
+        </div>
+        
+        <!-- Mobile Menu Toggle -->
+        <div class="flex lg:hidden">
+            <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700 dark:text-gray-300">
+                <span class="sr-only">Open main menu</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    <path x-show="mobileMenuOpen" x-cloak stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Desktop Menu -->
+        <div class="hidden lg:flex lg:gap-x-12">
+            <a href="/" class="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200 hover:text-primary-600 transition-colors">Home</a>
+            <a href="/about/" class="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200 hover:text-primary-600 transition-colors">About</a>
+            <a href="/features/" class="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200 hover:text-primary-600 transition-colors">Features</a>
+            <a href="/contact/" class="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200 hover:text-primary-600 transition-colors">Contact</a>
+        </div>
+        
+        <!-- Desktop Actions -->
+        <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-x-6">
+            <!-- Theme Toggle -->
+            <button onclick="document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');" class="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+                <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+            
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'login' %}" class="text-sm font-semibold leading-6 text-gray-900 dark:text-white hover:text-primary-600 transition-colors">Dashboard</a>
+                <a href="{% url 'logout' %}" class="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 hover:shadow-lg transition-all duration-300">Logout</a>
+            {% else %}
+                <a href="/login/" class="text-sm font-semibold leading-6 text-gray-900 dark:text-white hover:text-primary-600 transition-colors">Log in</a>
+                <a href="/register/" class="rounded-full bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 hover:shadow-lg hover:shadow-primary-500/30 transition-all duration-300">Get Started</a>
+            {% endif %}
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu -->
+    <div x-show="mobileMenuOpen" x-collapse x-cloak class="lg:hidden glass border-b">
+        <div class="space-y-1 px-4 pb-3 pt-2">
+            <a href="/" class="block rounded-md px-3 py-2 text-base font-medium text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">Home</a>
+            <a href="/about/" class="block rounded-md px-3 py-2 text-base font-medium text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">About</a>
+            <a href="/features/" class="block rounded-md px-3 py-2 text-base font-medium text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">Features</a>
+            <a href="/contact/" class="block rounded-md px-3 py-2 text-base font-medium text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">Contact</a>
+            <div class="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4">
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'login' %}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">Dashboard</a>
+                    <a href="{% url 'logout' %}" class="block rounded-md px-3 py-2 text-base font-medium text-red-600 hover:bg-gray-50 dark:hover:bg-gray-800">Logout</a>
+                {% else %}
+                    <a href="/login/" class="block rounded-md px-3 py-2 text-base font-medium text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">Log in</a>
+                    <a href="/register/" class="block rounded-md px-3 py-2 text-base font-medium text-primary-600 hover:bg-gray-50 dark:hover:bg-gray-800">Get Started</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>

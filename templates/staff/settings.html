@@ -1,0 +1,157 @@
+{% extends 'layouts/base_staff.html' %}
+
+{% block title %}Settings | EcoNova Staff{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Settings</h1>
+    <p class="text-gray-500 mt-1">Customize your system theme, notification preferences, and account configurations.</p>
+</div>
+
+<div class="max-w-3xl space-y-6 animate-[slideUp_0.6s_ease-out]">
+    <!-- Theme Settings Card -->
+    <div class="glass p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+            <i class="fas fa-paint-brush text-primary-500"></i> Theme Options
+        </h3>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Choose your preferred visual theme for the EcoNova interface.</p>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Light Mode Option -->
+            <div id="theme-light-card" onclick="setSystemTheme('light')" class="cursor-pointer border-2 p-5 rounded-2xl flex items-center gap-4 transition-all duration-300 hover:border-primary-500/50 bg-white dark:bg-gray-800/10 border-gray-200 dark:border-gray-800">
+                <div class="w-12 h-12 bg-amber-50 dark:bg-amber-950/30 text-amber-500 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-900 dark:text-white text-base">Light Mode</h4>
+                    <p class="text-xs text-gray-400">Classic bright appearance</p>
+                </div>
+                <div class="ml-auto w-5 h-5 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center theme-radio-check">
+                    <div class="w-3 h-3 rounded-full bg-primary-500 hidden" id="light-dot"></div>
+                </div>
+            </div>
+
+            <!-- Dark Mode Option -->
+            <div id="theme-dark-card" onclick="setSystemTheme('dark')" class="cursor-pointer border-2 p-5 rounded-2xl flex items-center gap-4 transition-all duration-300 hover:border-primary-500/50 bg-white dark:bg-gray-800/10 border-gray-200 dark:border-gray-800">
+                <div class="w-12 h-12 bg-blue-50 dark:bg-blue-950/30 text-blue-500 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fas fa-moon"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-900 dark:text-white text-base">Dark Mode</h4>
+                    <p class="text-xs text-gray-400">Sleek dark appearance</p>
+                </div>
+                <div class="ml-auto w-5 h-5 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center theme-radio-check">
+                    <div class="w-3 h-3 rounded-full bg-primary-500 hidden" id="dark-dot"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Settings Card -->
+    <div class="glass p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+            <i class="fas fa-bell text-primary-500"></i> Notifications Configuration
+        </h3>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Manage how and when you receive system alerts.</p>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            <div class="space-y-4">
+                <!-- Toggle 1 -->
+                <div class="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-800/80">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 dark:text-white text-sm">Task Assignments</h4>
+                        <p class="text-xs text-gray-400 mt-0.5">Receive immediate notifications when new waste reports are assigned to you.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="task_notif" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+                    </label>
+                </div>
+                
+                <!-- Toggle 2 -->
+                <div class="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-800/80">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 dark:text-white text-sm">Email Reports</h4>
+                        <p class="text-xs text-gray-400 mt-0.5">Send a weekly email digest of completed tasks and impact summary.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="email_digest" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+                    </label>
+                </div>
+
+                <!-- Toggle 3 -->
+                <div class="flex items-center justify-between py-3">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 dark:text-white text-sm">Priority Alerts Only</h4>
+                        <p class="text-xs text-gray-400 mt-0.5">Only show sound or push notifications for High-Priority waste alerts.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="high_priority_only" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="pt-6 border-t border-gray-150 dark:border-gray-800 flex justify-end">
+                <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-primary-600 hover:bg-primary-500 text-white font-bold rounded-xl shadow-lg shadow-primary-500/30 transition-all hover:-translate-y-0.5">
+                    <i class="fas fa-save me-2"></i> Save Preferences
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function updateThemeUI() {
+        const theme = localStorage.getItem('theme') || 'light';
+        const lightCard = document.getElementById('theme-light-card');
+        const darkCard = document.getElementById('theme-dark-card');
+        const lightDot = document.getElementById('light-dot');
+        const darkDot = document.getElementById('dark-dot');
+        
+        if (theme === 'dark') {
+            darkCard.classList.add('border-primary-500', 'bg-primary-500/5');
+            darkCard.classList.remove('border-gray-200', 'dark:border-gray-800');
+            lightCard.classList.remove('border-primary-500', 'bg-primary-500/5');
+            lightCard.classList.add('border-gray-200', 'dark:border-gray-800');
+            darkDot.classList.remove('hidden');
+            lightDot.classList.add('hidden');
+        } else {
+            lightCard.classList.add('border-primary-500', 'bg-primary-500/5');
+            lightCard.classList.remove('border-gray-200', 'dark:border-gray-800');
+            darkCard.classList.remove('border-primary-500', 'bg-primary-500/5');
+            darkCard.classList.add('border-gray-200', 'dark:border-gray-800');
+            lightDot.classList.remove('hidden');
+            darkDot.classList.add('hidden');
+        }
+    }
+
+    function setSystemTheme(theme) {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+        updateThemeUI();
+    }
+
+    // Initialize UI state
+    document.addEventListener("DOMContentLoaded", function() {
+        updateThemeUI();
+    });
+</script>
+{% endblock %}

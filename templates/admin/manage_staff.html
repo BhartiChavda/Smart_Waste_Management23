@@ -1,0 +1,118 @@
+{% extends 'layouts/base_admin.html' %}
+
+{% block title %}Manage Staff - EcoNova AI{% endblock %}
+
+{% block content %}
+<div x-data="{ showAddStaffModal: false }">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <a href="{% url 'admin_dashboard' %}" class="w-10 h-10 rounded-full bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 transition-all shadow-sm">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Manage Staff</h1>
+                <p class="text-gray-500 mt-1">Assign roles and manage municipal workers.</p>
+            </div>
+        </div>
+        <button @click="showAddStaffModal = true" class="bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-primary-500 transition-colors shadow-sm flex items-center gap-2">
+            <i class="fas fa-user-plus"></i> Add Staff Member
+        </button>
+    </div>
+
+    <!-- Staff List Table -->
+    <div class="glass rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
+                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Staff ID</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Username</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date Joined</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                    {% for staff in staff_members %}
+                    <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
+                            #{{ staff.id }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm">
+                                    {{ staff.username|make_list|first|upper }}
+                                </div>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ staff.username }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {{ staff.email }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {{ staff.date_joined|date:"M d, Y" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center">
+                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                                <i class="fas fa-users-slash text-2xl text-gray-400"></i>
+                            </div>
+                            <h3 class="text-sm font-medium text-gray-900 dark:text-white">No staff found</h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Add your first staff member to start dispatching complaints.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Staff Modal -->
+    <div x-show="showAddStaffModal" x-cloak class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div x-show="showAddStaffModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/80 backdrop-blur-sm transition-opacity"></div>
+      
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div x-show="showAddStaffModal" @click.away="showAddStaffModal = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-200 dark:border-gray-700">
+                    <form method="POST" action="{% url 'manage_staff' %}">
+                        {% csrf_token %}
+                        <div class="px-6 py-6">
+                            <div class="flex items-center justify-between mb-5">
+                                <h3 class="text-lg font-bold leading-6 text-gray-900 dark:text-white" id="modal-title">Create New Staff Member</h3>
+                                <button type="button" @click="showAddStaffModal = false" class="text-gray-400 hover:text-gray-500">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
+                                    <input type="text" name="username" id="username" required class="block w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-4 py-2.5" placeholder="e.g. john_doe" autocomplete="new-username">
+                                </div>
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+                                    <input type="email" name="email" id="email" required class="block w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-4 py-2.5" placeholder="e.g. john@gmail.com" autocomplete="off">
+                                </div>
+                                <div>
+                                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                                    <div class="relative">
+                                        <input type="password" name="password" id="password" required class="block w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-4 py-2.5 pr-10" placeholder="••••••••" autocomplete="new-password">
+                                        <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors" onclick="var input = document.getElementById('password'); var icon = this.querySelector('i'); if (input.type === 'password') { input.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); } else { input.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 flex flex-row-reverse border-t border-gray-200 dark:border-gray-700">
+                            <button type="submit" class="inline-flex w-full justify-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 sm:ml-3 sm:w-auto">Create Staff</button>
+                            <button type="button" @click="showAddStaffModal = false" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white dark:bg-gray-700 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 sm:mt-0 sm:w-auto">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

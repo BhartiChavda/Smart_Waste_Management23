@@ -1,0 +1,262 @@
+{% extends 'layouts/base_user.html' %}
+
+{% block title %}Report Waste | EcoNova Citizen{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet CSS for map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+    #map { height: 100%; min-height: 350px; width: 100%; border-radius: 0.75rem; z-index: 1; }
+    /* Fix leaflet controls in dark mode */
+    .dark .leaflet-control-zoom a { background-color: #1f2937; color: #f3f4f6; border-color: #374151; }
+    .dark .leaflet-control-attribution { background-color: rgba(31, 41, 55, 0.8) !important; color: #d1d5db !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Report Garbage</h1>
+    <p class="text-gray-500 mt-2 max-w-2xl text-sm leading-relaxed">Upload an image, select the waste category, and pick the location on the map. Our AI will automatically assign priority based on dustbin capacity.</p>
+</div>
+
+<!-- Main Form Card -->
+<div class="glass p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 xl:max-w-6xl">
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column: Image, Category, Description -->
+            <div class="space-y-6">
+                <!-- Image Upload -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Garbage Image</label>
+                    <div class="mt-1 p-4 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-xl hover:border-primary-500 dark:hover:border-primary-500 transition-colors bg-white dark:bg-gray-800/50">
+                        <div class="text-center w-full">
+                            <div class="mb-3">
+                                {{ form.image }}
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Take a photo directly or upload an image.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-red-500 text-sm mt-1">{{ form.image.errors }}</div>
+                    
+                    <div id="image-preview-container" class="mt-4 text-center hidden p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700">
+                        <img id="image-preview" src="#" alt="Preview" class="mx-auto rounded-lg shadow-sm mb-3 max-h-48 object-cover">
+                        <div id="ai-status" class="font-bold text-primary-600 text-sm flex items-center justify-center gap-2">
+                            <i class="fas fa-spinner fa-spin"></i> Analyzing image with AI...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Waste Category -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Waste Category</label>
+                    <div class="relative">
+                        {{ form.category }}
+                    </div>
+                    <small class="text-gray-500 dark:text-gray-400 mt-1 block text-xs">Auto-detected by AI, but you can change it if needed.</small>
+                    <div class="text-red-500 text-sm mt-1">{{ form.category.errors }}</div>
+                </div>
+                
+                <!-- Description -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Additional Description (Optional)</label>
+                    {{ form.description }}
+                </div>
+            </div>
+            
+            <!-- Right Column: Map -->
+            <div class="space-y-4 h-full flex flex-col min-h-[400px]">
+                <label class="block text-sm font-semibold text-gray-900 dark:text-white">Location</label>
+                <div class="glass p-2 rounded-xl flex-1 relative overflow-hidden border border-gray-200 dark:border-gray-700 shadow-inner h-full">
+                    <div id="map"></div>
+                </div>
+                <small class="text-gray-500 dark:text-gray-400 block text-xs"><i class="fas fa-info-circle text-primary-500 mr-1"></i> Click on the map to set the exact location of the garbage.</small>
+                
+                <!-- Hidden Lat/Lng Inputs -->
+                <div class="hidden">
+                    {{ form.latitude }}
+                    {{ form.longitude }}
+                </div>
+                <div class="text-red-500 text-sm mt-1">{{ form.latitude.errors }}</div>
+                <div class="text-red-500 text-sm mt-1">{{ form.longitude.errors }}</div>
+            </div>
+        </div>
+
+        <div class="pt-6 mt-8 border-t border-gray-200 dark:border-gray-800 flex justify-end">
+            <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-primary-600 hover:bg-primary-500 text-white font-bold rounded-xl shadow-lg shadow-primary-500/30 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2 text-lg">
+                <i class="fas fa-paper-plane"></i> Submit Report
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Remove TensorFlow.js and MobileNet imports -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // --- Style Django Form Fields with Tailwind ---
+        document.querySelectorAll('input[type="file"]').forEach(el => {
+            el.classList.add('block', 'w-full', 'text-sm', 'text-gray-500', 'dark:text-gray-400', 'file:mr-4', 'file:py-2', 'file:px-4', 'file:rounded-full', 'file:border-0', 'file:text-sm', 'file:font-semibold', 'file:bg-primary-50', 'file:text-primary-700', 'hover:file:bg-primary-100', 'dark:file:bg-gray-700', 'dark:file:text-gray-300', 'cursor-pointer');
+        });
+        document.querySelectorAll('select').forEach(el => {
+            el.classList.add('block', 'w-full', 'rounded-xl', 'border-gray-300', 'dark:border-gray-700', 'bg-gray-50', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'focus:border-primary-500', 'focus:ring-primary-500', 'sm:text-sm', 'p-3', 'appearance-none');
+        });
+        document.querySelectorAll('textarea').forEach(el => {
+            el.classList.add('block', 'w-full', 'rounded-xl', 'border-gray-300', 'dark:border-gray-700', 'bg-gray-50', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'focus:border-primary-500', 'focus:ring-primary-500', 'sm:text-sm', 'p-3', 'min-h-[100px]');
+        });
+        document.querySelectorAll('input[type="text"]').forEach(el => {
+            el.classList.add('block', 'w-full', 'rounded-xl', 'border-gray-300', 'dark:border-gray-700', 'bg-gray-50', 'dark:bg-gray-800', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'focus:border-primary-500', 'focus:ring-primary-500', 'sm:text-sm', 'p-3');
+        });
+
+        // --- Map Initialization ---
+        var map = L.map('map').setView([20.5937, 78.9629], 5); // Default to India center
+        
+        // Add tile layer that works better with dark mode
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        var marker;
+        var latInput = document.querySelector('input[name="latitude"]');
+        var lngInput = document.querySelector('input[name="longitude"]');
+
+        // Fix map rendering issue when in a flex/grid layout
+        setTimeout(function(){ map.invalidateSize(); }, 500);
+
+        // Try HTML5 geolocation
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+                map.setView([lat, lng], 15);
+                placeMarker(lat, lng);
+            });
+        }
+
+        map.on('click', function(e) {
+            placeMarker(e.latlng.lat, e.latlng.lng);
+        });
+
+        function placeMarker(lat, lng) {
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            marker = L.marker([lat, lng]).addTo(map);
+            latInput.value = lat;
+            lngInput.value = lng;
+        }
+
+        // --- REAL AI Image Detection with YOLO Backend ---
+        var imageInput = document.getElementById('id_image') || document.querySelector('input[type="file"]');
+        var previewContainer = document.getElementById('image-preview-container');
+        var previewImage = document.getElementById('image-preview');
+        var aiStatus = document.getElementById('ai-status');
+        var categorySelect = document.getElementById('id_category') || document.querySelector('select[name="category"]');
+        
+        if(imageInput) {
+            console.log("SUCCESS: Image input found. Attaching change event listener.");
+            imageInput.addEventListener('change', function(e) {
+                console.log("EVENT FIRED: File selection changed!");
+                var file = e.target.files[0];
+                if (file) {
+                    console.log("FILE DETECTED:", file.name, "Type:", file.type, "Size:", file.size);
+                    
+                    var reader = new FileReader();
+                    reader.onload = function(evt) {
+                        previewImage.src = evt.target.result;
+                        previewContainer.classList.remove('hidden');
+                        previewContainer.classList.add('block');
+                        
+                        aiStatus.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Analyzing image with AI...';
+                        aiStatus.className = 'font-bold text-primary-600 text-sm flex items-center justify-center';
+                        
+                        var formData = new FormData();
+                        formData.append('image', file);
+                        
+                        var csrfTokenElement = document.querySelector('[name="csrfmiddlewaretoken"]');
+                        var csrfToken = csrfTokenElement ? csrfTokenElement.value : '';
+                        if (!csrfToken) {
+                            console.warn("WARNING: CSRF token not found in the DOM. Request might fail.");
+                        } else {
+                            console.log("CSRF Token found and attached to headers.");
+                        }
+                        
+                        console.log("NETWORK: Sending fetch POST request to /api/detect-waste/");
+                        
+                        fetch('/api/detect-waste/', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRFToken': csrfToken
+                            }
+                        })
+                        .then(response => {
+                            console.log("NETWORK: Fetch response received. Status:", response.status);
+                            if (!response.ok) {
+                                throw new Error("HTTP error " + response.status);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("API DATA:", data);
+                            if (data.error) {
+                                aiStatus.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>AI Error: ' + data.error;
+                                aiStatus.className = 'font-bold text-red-600 dark:text-red-400 text-sm flex items-center justify-center';
+                            } else {
+                                var detectedCategory = data.category;
+                                var confidencePercent = parseFloat(data.confidence);
+                                
+                                // FIX: Lowered default threshold to 30% so it mostly shows green
+                                var minConfidenceStr = "{{ request.session.ai_confidence|default:'30' }}";
+                                var minConfidence = parseInt(minConfidenceStr, 10);
+                                if (isNaN(minConfidence)) minConfidence = 30;
+                                
+                                console.log("YOLO Analysis -> Detected:", detectedCategory, "Confidence:", confidencePercent, "Threshold:", minConfidence);
+                                
+                                if (confidencePercent >= minConfidence) {
+                                    aiStatus.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Detected: <strong class="mx-1">' + detectedCategory + '</strong> - Confidence: ' + confidencePercent + '%';
+                                    aiStatus.className = 'font-bold text-green-600 dark:text-green-400 text-sm flex items-center justify-center';
+                                } else {
+                                    aiStatus.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Detected: <strong class="mx-1">' + detectedCategory + '</strong> (Confidence: ' + confidencePercent + '% - Below ' + minConfidence + '% Threshold)';
+                                    aiStatus.className = 'font-bold text-yellow-600 dark:text-yellow-400 text-sm flex items-center justify-center';
+                                }
+                                
+                                if(categorySelect) {
+                                    for (var i = 0; i < categorySelect.options.length; i++) {
+                                        if (categorySelect.options[i].text.toLowerCase() === detectedCategory.toLowerCase()) {
+                                            categorySelect.selectedIndex = i;
+                                            console.log("DOM UPDATE: Category dropdown automatically selected ->", detectedCategory);
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    console.error("DOM ERROR: Category select element not found.");
+                                }
+                            }
+                        })
+                        .catch(err => {
+                            aiStatus.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Failed to reach AI API.';
+                            aiStatus.className = 'font-bold text-red-600 dark:text-red-400 text-sm flex items-center justify-center';
+                            console.error("JAVASCRIPT FETCH ERROR:", err);
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    console.log("No file selected or file dialog cancelled.");
+                    previewContainer.classList.add('hidden');
+                    previewContainer.classList.remove('block');
+                }
+            });
+        } else {
+            console.error("FATAL ERROR: Image input field NOT FOUND in the DOM! The change event listener could not be attached.");
+        }
+    });
+</script>
+{% endblock %}

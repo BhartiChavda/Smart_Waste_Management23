@@ -1,0 +1,291 @@
+{% extends base_template|default:'layouts/base_user.html' %}
+
+{% block title %}My Profile | EcoNova Citizen{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Your Profile</h1>
+        <p class="text-gray-500 mt-1">Manage your personal information and settings</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl">
+    <!-- Left Column: User Summary Card -->
+    <div class="lg:col-span-1 space-y-6">
+        <div class="glass p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 text-center relative overflow-hidden group">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 text-primary-500 opacity-5 group-hover:scale-110 transition-transform duration-500">
+                <i class="fas fa-user-circle fa-8x"></i>
+            </div>
+            
+            {% if profile.profile_photo %}
+            <div class="relative w-24 h-24 mx-auto mb-6">
+                <img src="{{ profile.profile_photo.url }}" class="w-24 h-24 rounded-full object-cover mx-auto shadow-md ring-4 ring-white dark:ring-gray-900 relative z-10" alt="Avatar">
+            </div>
+            {% else %}
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-primary-100 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400 rounded-full mb-6 shadow-inner ring-4 ring-white dark:ring-gray-900 relative z-10">
+                <i class="fas fa-user text-4xl"></i>
+            </div>
+            {% endif %}
+            
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1 relative z-10">{% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</h2>
+            <p class="text-gray-500 dark:text-gray-400 font-medium mb-6 relative z-10">@{{ user.username }}</p>
+            
+            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 text-left border border-gray-100 dark:border-gray-700 relative z-10">
+                <div class="mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+                    <span class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">Email Address</span>
+                    <span class="block text-gray-900 dark:text-white font-medium truncate" title="{{ user.email }}">{{ user.email|default:"Not set" }}</span>
+                </div>
+                <div>
+                    <span class="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">Account Status</span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
+                        <i class="fas fa-circle text-[8px] mr-1.5"></i> Active Citizen
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Edit Details Form & Password Change -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Edit Profile Details -->
+        <div class="glass p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2 pb-4 border-b border-gray-100 dark:border-gray-800">
+                <i class="fas fa-user-edit text-primary-500"></i> Edit Details
+            </h3>
+            
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for field in form %}
+                        <div class="col-span-1 {% if field.name == 'address' or field.name == 'bio' or field.name == 'profile_photo' %}md:col-span-2{% endif %}">
+                            <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-red-500 text-sm mt-1 flex items-center gap-1 font-medium">
+                                    <i class="fas fa-exclamation-circle"></i> {{ field.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="pt-6 mt-6 border-t border-gray-200 dark:border-gray-800 flex justify-end">
+                    <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-primary-600 hover:bg-primary-500 text-white font-bold rounded-xl shadow-lg shadow-primary-500/30 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Security: Password Change -->
+        <div x-data="passwordChange()" class="glass p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                <i class="fas fa-shield-alt text-primary-500"></i> Security Settings
+            </h3>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">Manage password and account security verification</p>
+            
+            <!-- Step 1: Send OTP -->
+            <div x-show="step === 1" class="space-y-4">
+                <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    To change your password, we must first verify your identity. We will send a One-Time Password (OTP) verification code to your registered email: <strong class="text-gray-900 dark:text-white">{{ user.email }}</strong>.
+                </p>
+                <button @click="sendOTP()" :disabled="loading" class="w-full sm:w-auto px-6 py-3 bg-primary-600 hover:bg-primary-500 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                    <i class="fas fa-paper-plane" x-show="!loading"></i>
+                    <i class="fas fa-spinner animate-spin" x-show="loading"></i>
+                    <span x-text="loading ? 'Sending OTP...' : 'Send Verification Code'"></span>
+                </button>
+            </div>
+
+            <!-- Step 2: Verify OTP -->
+            <div x-show="step === 2" class="space-y-4" x-cloak>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    A 6-digit verification code has been sent to <strong class="text-gray-900 dark:text-white">{{ user.email }}</strong>. Please check your inbox and enter it below:
+                </p>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Verification Code</label>
+                    <input type="text" x-model="otp" placeholder="Enter 6-digit code" maxlength="6" class="block w-full max-w-xs rounded-xl border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white shadow-sm p-3 focus:border-primary-500 focus:ring-primary-500 text-center tracking-[0.5em] font-bold text-lg">
+                </div>
+                <div class="flex flex-wrap gap-3 pt-2">
+                    <button @click="verifyOTP()" :disabled="loading || otp.length !== 6" class="px-6 py-2.5 bg-primary-600 hover:bg-primary-500 text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50 flex items-center gap-2">
+                        <i class="fas fa-check-circle" x-show="!loading"></i>
+                        <i class="fas fa-spinner animate-spin" x-show="loading"></i>
+                        <span>Verify Code</span>
+                    </button>
+                    <button @click="sendOTP()" :disabled="loading" class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-all disabled:opacity-50">
+                        Resend OTP
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Enter New Password -->
+            <div x-show="step === 3" class="space-y-6" x-cloak>
+                <div class="p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-xl flex items-start gap-3">
+                    <i class="fas fa-check-circle mt-0.5 text-lg"></i>
+                    <div>
+                        <p class="font-bold text-sm">Identity Verified Successfully!</p>
+                        <p class="text-xs mt-0.5">Please set your new password below.</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">New Password</label>
+                        <div class="relative">
+                            <input :type="showPassword ? 'text' : 'password'" x-model="password" placeholder="Minimum 8 characters" class="block w-full rounded-xl border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white shadow-sm p-3 pr-10 focus:border-primary-500 focus:ring-primary-500" autocomplete="new-password">
+                            <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                                <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Confirm New Password</label>
+                        <div class="relative">
+                            <input :type="showConfirmPassword ? 'text' : 'password'" x-model="confirmPassword" placeholder="Repeat new password" class="block w-full rounded-xl border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white shadow-sm p-3 pr-10 focus:border-primary-500 focus:ring-primary-500" autocomplete="new-password">
+                            <button type="button" @click="showConfirmPassword = !showConfirmPassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                                <i class="fas" :class="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button @click="changePassword()" :disabled="loading || password.length < 8 || password !== confirmPassword" class="w-full sm:w-auto px-8 py-3 bg-primary-600 hover:bg-primary-500 text-white font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                    <i class="fas fa-key" x-show="!loading"></i>
+                    <i class="fas fa-spinner animate-spin" x-show="loading"></i>
+                    <span>Update Password</span>
+                </button>
+            </div>
+
+            <!-- Messages Toast inside component for instant feedback -->
+            <div x-show="message" x-transition class="mt-4 p-3 rounded-xl text-sm font-medium flex items-center gap-2" :class="isError ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' : 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'" x-cloak>
+                <i class="fas" :class="isError ? 'fa-exclamation-circle' : 'fa-check-circle'"></i>
+                <span x-text="message"></span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Style Django Form Fields with Tailwind
+        document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"]').forEach(el => {
+            el.classList.add('block', 'w-full', 'rounded-xl', 'border-gray-300', 'dark:border-gray-700', 'bg-gray-50', 'dark:bg-gray-800/50', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'focus:border-primary-500', 'focus:ring-primary-500', 'sm:text-sm', 'p-3', 'transition-colors');
+        });
+        document.querySelectorAll('textarea').forEach(el => {
+            el.classList.add('block', 'w-full', 'rounded-xl', 'border-gray-300', 'dark:border-gray-700', 'bg-gray-50', 'dark:bg-gray-800/50', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'focus:border-primary-500', 'focus:ring-primary-500', 'sm:text-sm', 'p-3', 'min-h-[120px]', 'transition-colors');
+        });
+        document.querySelectorAll('input[type="file"]').forEach(el => {
+            el.classList.add('block', 'w-full', 'text-sm', 'text-gray-500', 'dark:text-gray-400',
+                             'file:mr-4', 'file:py-2.5', 'file:px-4', 'file:rounded-xl', 'file:border-0',
+                             'file:text-sm', 'file:font-bold', 'file:bg-primary-50', 'file:text-primary-700',
+                             'dark:file:bg-primary-900/30', 'dark:file:text-primary-400',
+                             'hover:file:bg-primary-100', 'dark:hover:file:bg-primary-900/50',
+                             'cursor-pointer', 'file:cursor-pointer', 'transition-colors');
+        });
+    });
+
+    function passwordChange() {
+        return {
+            step: Number('{% if otp_verified %}3{% else %}1{% endif %}'),
+            loading: false,
+            otp: '',
+            password: '',
+            confirmPassword: '',
+            showPassword: false,
+            showConfirmPassword: false,
+            message: '',
+            isError: false,
+            
+            sendOTP() {
+                this.loading = true;
+                this.message = '';
+                fetch('{% url "send_profile_otp" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    this.loading = false;
+                    this.message = data.message;
+                    this.isError = !data.success;
+                    if (data.success) {
+                        this.step = 2;
+                    }
+                })
+                .catch(err => {
+                    this.loading = false;
+                    this.message = 'Something went wrong. Please try again.';
+                    this.isError = true;
+                });
+            },
+            
+            verifyOTP() {
+                this.loading = true;
+                this.message = '';
+                let formData = new FormData();
+                formData.append('otp', this.otp);
+                fetch('{% url "verify_profile_otp" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    this.loading = false;
+                    this.message = data.message;
+                    this.isError = !data.success;
+                    if (data.success) {
+                        this.step = 3;
+                        this.otp = '';
+                    }
+                })
+                .catch(err => {
+                    this.loading = false;
+                    this.message = 'Something went wrong. Please try again.';
+                    this.isError = true;
+                });
+            },
+            
+            changePassword() {
+                this.loading = true;
+                this.message = '';
+                let formData = new FormData();
+                formData.append('password', this.password);
+                formData.append('confirm_password', this.confirmPassword);
+                fetch('{% url "change_profile_password" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    this.loading = false;
+                    this.message = data.message;
+                    this.isError = !data.success;
+                    if (data.success) {
+                        this.password = '';
+                        this.confirmPassword = '';
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    }
+                })
+                .catch(err => {
+                    this.loading = false;
+                    this.message = 'Something went wrong. Please try again.';
+                    this.isError = true;
+                });
+            }
+        }
+    }
+</script>
+{% endblock %}

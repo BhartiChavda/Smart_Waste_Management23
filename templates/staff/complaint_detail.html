@@ -1,0 +1,109 @@
+{% extends 'layouts/base_staff.html' %}
+
+{% block title %}Complaint #{{ complaint.id }} | EcoNova Staff{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+        <a href="javascript:history.back()" class="w-10 h-10 rounded-full bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 transition-all shadow-sm">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Complaint #{{ complaint.id }}</h1>
+            <p class="text-gray-500 mt-1">Detailed view of the reported waste.</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-3">
+        {% if complaint.priority == 'Critical' %}
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                <span class="w-2 h-2 rounded-full bg-red-600 dark:bg-red-400"></span> Critical Priority
+            </span>
+        {% elif complaint.priority == 'High' %}
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
+                <span class="w-2 h-2 rounded-full bg-orange-600 dark:bg-orange-400"></span> High Priority
+            </span>
+        {% else %}
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400">
+                <span class="w-2 h-2 rounded-full bg-gray-500"></span> {{ complaint.priority }} Priority
+            </span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left Column: Details & Update Form -->
+    <div class="lg:col-span-2 space-y-6">
+        <div class="glass p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Waste Details</h2>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Category</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ complaint.category }}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</p>
+                    <p class="text-lg font-bold text-primary-600">{{ complaint.status }}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Reported By</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ complaint.user.username }}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Date Filed</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ complaint.created_at|date:"M d, Y g:i A" }}</p>
+                </div>
+            </div>
+
+            {% if complaint.description %}
+            <div class="mb-6">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Description</p>
+                <p class="text-gray-900 dark:text-white mt-1">{{ complaint.description }}</p>
+            </div>
+            {% endif %}
+
+            <hr class="border-gray-200 dark:border-gray-800 my-6">
+
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Update Status</h3>
+            <form method="post" class="flex gap-4">
+                {% csrf_token %}
+                <select name="status" class="block w-full max-w-xs rounded-lg border-0 py-2 pl-3 pr-8 text-gray-900 dark:text-white dark:bg-gray-800 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 focus:ring-2 focus:ring-primary-600 sm:text-sm shadow-sm cursor-pointer">
+                    <option value="Assigned" {% if complaint.status == 'Assigned' %}selected{% endif %}>Assigned</option>
+                    <option value="In Process" {% if complaint.status == 'In Process' %}selected{% endif %}>In Process</option>
+                    <option value="Resolved" {% if complaint.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="Rejected" {% if complaint.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+                <button type="submit" class="bg-primary-600 hover:bg-primary-500 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-sm">
+                    Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Column: Image -->
+    <div class="space-y-6">
+        <div class="glass p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><i class="fas fa-image text-gray-400 mr-2"></i> Evidence Image</h2>
+            {% if complaint.image %}
+                <a href="{{ complaint.image.url }}" target="_blank">
+                    <img src="{{ complaint.image.url }}" alt="Waste Image" class="w-full h-48 object-cover rounded-xl shadow-inner hover:opacity-90 transition-opacity">
+                </a>
+                <p class="text-xs text-center text-gray-500 mt-2">Click to enlarge</p>
+            {% else %}
+                <div class="w-full h-48 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-700">
+                    <span class="text-gray-400 font-medium">No image provided</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="glass p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i> Location</h2>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Coordinates</p>
+            <p class="text-gray-900 dark:text-white font-mono mt-1">{{ complaint.latitude|floatformat:6 }}, {{ complaint.longitude|floatformat:6 }}</p>
+            <a href="https://maps.google.com/?q={{ complaint.latitude }},{{ complaint.longitude }}" target="_blank" class="mt-4 block w-full text-center bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-2 px-4 rounded-lg transition-colors">
+                Open in Google Maps
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
